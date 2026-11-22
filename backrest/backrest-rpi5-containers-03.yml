@@ -1,0 +1,38 @@
+# Backrest (a web page over restic) on RPi5-Containers-03.
+# Backs up Alicia's Webtop home folder and the Pi's own settings into an encrypted restic
+# repository on NAS-LAB's Backups share. Nothing is stopped while it copies.
+# Web page: http://10.0.0.23:9898 (Backrest asks for its own login).
+# The restic repository password is set in Backrest's page, never here; a copy lives in Infisical.
+
+services:
+  backrest:
+    image: ghcr.io/garethgeorge/backrest:latest
+    container_name: backrest
+    hostname: rpi5-containers-03   # restic records this as the snapshot's host
+    restart: unless-stopped
+    environment:
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TMPDIR=/tmp
+      - TZ=America/Los_Angeles
+    volumes:
+      # Backrest's own state, on the Pi
+      - /srv/backrest/data:/data
+      - /srv/backrest/config:/config
+      - /srv/backrest/cache:/cache
+      - /srv/backrest/tmp:/tmp
+      # What gets backed up, read-only
+      - /srv/webtop/alicia/config:/userdata/alicia-config:ro
+      - /srv/backrest/sqlite-copies:/userdata/sqlite-copies:ro
+      - /etc:/userdata/host-etc:ro
+      - /boot/firmware:/userdata/host-boot-firmware:ro
+      - /opt/komodo-agent:/userdata/host-komodo-agent:ro
+      # Where restores land, for testing and for picking files back
+      - /srv/backrest/restore:/restore
+      # The restic repository, on NAS-LAB (NFS, mounted by the Pi at boot)
+      - /mnt/nas-lab/backups/restic:/repos
+    ports:
+      - "9898:9898"
+    cpu_shares: 256
+    mem_limit: 1g

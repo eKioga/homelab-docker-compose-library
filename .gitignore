@@ -1,0 +1,6 @@
+# Values for variables never enter the repository.
+.env
+*.env
+!.env.example
+*.secret
+secrets/

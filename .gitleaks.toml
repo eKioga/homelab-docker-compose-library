@@ -1,0 +1,14 @@
+title = "docker-compose-library"
+
+# Gitleaks' built-in rules, plus one for plain passwords and keys written straight into a compose
+# file (KEY=value or KEY: value). A value written as ${VARIABLE} is allowed.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "compose-inline-secret"
+description = "A secret-looking variable with a literal value in a compose file"
+regex = '''(?i)\b[A-Z0-9_]*(PASSWORD|PASSWD|SECRET|TOKEN|API_KEY|APIKEY|PRIVATE_KEY|APP_KEY|ENCRYPTION_KEY)[A-Z0-9_]*\s*[:=]\s*["']?([^\s"'$#][^\s"'#]{5,})'''
+secretGroup = 2
+path = '''\.ya?ml$'''
+keywords = ["password", "passwd", "secret", "token", "api_key", "apikey", "private_key", "app_key", "encryption_key"]
