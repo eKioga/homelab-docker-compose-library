@@ -8,6 +8,7 @@
 #   /srv/webtop/alicia/config                              her desktop and home folder (/config), on the Pi
 #   /mnt/nas-lab/backups/dev/webtop/kit/custom-cont-init.d  the shared start-up kit (x86_64 and arm64), read-only
 #   /mnt/nas-lab/backups/dev/webtop/kit/staging             kit staging (the Deskpost arm64 build), read-only
+#   /mnt/nas-lab/backups/dev/webtop/kit/control             kit control (the Deskpost hold file), read-only
 #   /mnt/nas-lab/backups/dev/webtop/exchange/alicia         her file tray (B:\dev\webtop\exchange\alicia)
 # /mnt/nas-lab/backups is the NAS-LAB Backups share over NFS, mounted on the Pi by home-lab-admin.
 #
@@ -27,6 +28,7 @@ services:
       - PGID=1000
       - TZ=America/Los_Angeles
       - TITLE=Alicia's Deskpost
+      - WEBTOP_NAME=alicia        # this office's name in the kit's Deskpost hold file (kit/control/deskpost-hold)
       - CUSTOM_USER=${WEBTOP_USER:-abc}
       - PASSWORD=${WEBTOP_PASSWORD:-}
     volumes:
@@ -43,6 +45,14 @@ services:
       - type: bind
         source: /mnt/nas-lab/backups/dev/webtop/kit/staging
         target: /webtop-kit/staging
+        read_only: true
+        bind:
+          create_host_path: false
+      # The kit's control folder, read-only: the Deskpost hold file (kit/control/README.md). Read-only so no desktop
+      # can lift its own hold.
+      - type: bind
+        source: /mnt/nas-lab/backups/dev/webtop/kit/control
+        target: /webtop-kit/control
         read_only: true
         bind:
           create_host_path: false
