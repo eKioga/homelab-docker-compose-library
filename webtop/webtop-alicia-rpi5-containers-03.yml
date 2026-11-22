@@ -1,0 +1,64 @@
+# Webtop for Alicia on RPi5-Containers-03 (home-lab-admin's Pi, 10.0.0.23). Home network only.
+# Written by home-lab-admin, 2026-11-22. Her home since 2026-11-22: alicia.eric-post.com (Nginx Proxy Manager ->
+# 10.0.0.23:3060). It replaced webtop-alicia-nas-lab.yml on NAS-LAB, whose stack is stopped.
+#
+# Without the proxy: https://10.0.0.23:3061 (Webtop's own self-signed HTTPS) or http://10.0.0.23:3060.
+#
+# Folders on the Pi:
+#   /srv/webtop/alicia/config                              her desktop and home folder (/config), on the Pi
+#   /mnt/nas-lab/backups/dev/webtop/kit/custom-cont-init.d  the shared start-up kit (x86_64 and arm64), read-only
+#   /mnt/nas-lab/backups/dev/webtop/kit/staging             kit staging (the Deskpost arm64 build), read-only
+#   /mnt/nas-lab/backups/dev/webtop/exchange/alicia         her file tray (B:\dev\webtop\exchange\alicia)
+# /mnt/nas-lab/backups is the NAS-LAB Backups share over NFS, mounted on the Pi by home-lab-admin.
+#
+# Password: in Komodo, stack Environment, set WEBTOP_USER=alicia and WEBTOP_PASSWORD=<the password>.
+# The values live in Komodo, never in this file.
+#
+# PUID/PGID 1000 is the Pi's first user. No cpu_shares: the Pi runs nothing else of weight.
+
+services:
+  webtop-alicia-pi:
+    image: lscr.io/linuxserver/webtop:ubuntu-xfce
+    container_name: webtop-alicia-pi
+    security_opt:
+      - seccomp:unconfined        # needed for user namespaces (sandboxes), as on BazziteTV
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - TITLE=Alicia's Deskpost
+      - CUSTOM_USER=${WEBTOP_USER:-abc}
+      - PASSWORD=${WEBTOP_PASSWORD:-}
+    volumes:
+      - /srv/webtop/alicia/config:/config
+      # The start-up kit, read-only. Its scripts run as root at every start, so no desktop may change them.
+      - type: bind
+        source: /mnt/nas-lab/backups/dev/webtop/kit/custom-cont-init.d
+        target: /custom-cont-init.d
+        read_only: true
+        bind:
+          create_host_path: false   # fail the deploy if the NAS mount is missing, never start with an empty kit
+      # The kit's staging folder, read-only: what the kit installs from when no public release fits, such as
+      # the Deskpost linux-arm64 build (2026-11-22). Read-only for the same reason as the kit.
+      - type: bind
+        source: /mnt/nas-lab/backups/dev/webtop/kit/staging
+        target: /webtop-kit/staging
+        read_only: true
+        bind:
+          create_host_path: false
+      # Her file tray, shared with her PC and PC-Eric as B:\dev\webtop\exchange\alicia. Only this folder.
+      - type: bind
+        source: /mnt/nas-lab/backups/dev/webtop/exchange/alicia
+        target: /mnt/exchange
+        bind:
+          create_host_path: false
+    ports:
+      - 3060:3000
+      - 3061:3001
+    shm_size: "1gb"
+    deploy:
+      resources:
+        limits:
+          memory: 6g              # of the Pi's 8 GB, leaving room for the system and Komodo's agent
+    restart: unless-stopped
+    # Deliberately absent: the Docker socket, privileged mode, any GPU, and any other NAS folder.
