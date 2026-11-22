@@ -8,7 +8,7 @@ on:
 
 jobs:
   scan-and-publish:
-    runs-on: deskpost-linux   # the BazziteTV runner; Kioga's repositories share it
+    runs-on: ubuntu-latest   # nas-lab-runner on NAS-LAB (BazziteTV's runner is busy with Deskpost checks)
     timeout-minutes: 15
     env:
       GITLEAKS_VERSION: 8.30.1
