@@ -1,5 +1,5 @@
 # Gatus on RPi5-Containers-04, the jumpbox at the second site. Written by home-lab-admin, 2026-11-23.
-# Checks, from the second site's side, that Jellyfin answers, both routers answer, and DNS works and blocks ads,
+# Checks, from the second site's side, that Jellyfin answers, both routers answer, and DNS works and blocks ads.
 # Checks are in gatus-config-rpi5-containers-04.yaml beside this file. Alerts are off until the Pi is settled at
 # the second site; they will use the existing Pushover key (Eric, 2026-11-23).
 #
