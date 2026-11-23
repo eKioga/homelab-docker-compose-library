@@ -1,0 +1,90 @@
+# Gatus checks for RPi5-Containers-04 (the jumpbox at the second site). Written by home-lab-admin, 2026-11-23.
+# The Pushover values come from the container's environment; this file holds no secrets.
+
+alerting:
+  pushover:
+    application-token: "${PUSHOVER_APP_TOKEN}"
+    user-key: "${PUSHOVER_USER_KEY}"
+    title: "Gatus (second site)"
+    default-alert:
+      enabled: true
+      failure-threshold: 3        # three failed checks in a row (about 3 minutes) before an alert
+      success-threshold: 2
+      send-on-resolved: true
+
+endpoints:
+  - name: Jellyfin
+    group: Home over the site link
+    url: "http://10.0.0.20:8096/health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY] == Healthy"
+    alerts:
+      - type: pushover
+
+  - name: Home router
+    group: Home over the site link
+    url: "icmp://10.0.0.1"
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: pushover
+
+  - name: dns-01 answers
+    group: Home over the site link
+    url: "10.0.0.21"
+    interval: 2m
+    dns:
+      query-name: "example.com"
+      query-type: "A"
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+    alerts:
+      - type: pushover
+
+  - name: Second site router
+    group: Second site
+    url: "icmp://10.10.0.1"
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: pushover
+
+  - name: dns-03 answers
+    group: Second site
+    url: "127.0.0.1"
+    interval: 1m
+    dns:
+      query-name: "example.com"
+      query-type: "A"
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+    alerts:
+      - type: pushover
+
+  - name: dns-03 blocks ads
+    group: Second site
+    url: "127.0.0.1"
+    interval: 5m
+    dns:
+      query-name: "doubleclick.net"
+      query-type: "A"
+    conditions:
+      - "[DNS_RCODE] == NXDOMAIN"
+    alerts:
+      - type: pushover
+
+  - name: Internal names
+    group: Second site
+    url: "127.0.0.1"
+    interval: 5m
+    dns:
+      query-name: "komodo.eric-post.com"
+      query-type: "A"
+    conditions:
+      - "[BODY] == 10.0.0.15"
+    alerts:
+      - type: pushover

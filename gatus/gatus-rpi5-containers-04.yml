@@ -1,0 +1,26 @@
+# Gatus on RPi5-Containers-04, the jumpbox at the second site. Written by home-lab-admin, 2026-11-23.
+# Checks, from the second site's side, that Jellyfin answers, both routers answer, and DNS works and blocks ads,
+# and sends a Pushover alert when one fails (and when it recovers). Checks are in gatus-config-rpi5-containers-04.yaml
+# beside this file.
+#
+# Status page: http://<Pi address>:8080
+# Pushover: set PUSHOVER_APP_TOKEN and PUSHOVER_USER_KEY in the stack's Environment in Komodo (never in a file here).
+
+services:
+  gatus:
+    image: twinproduction/gatus:latest
+    container_name: gatus
+    network_mode: host            # so it can query the Pi's own DNS (dns-03) on 127.0.0.1
+    cap_add:
+      - NET_RAW                   # for ping (ICMP) checks
+    environment:
+      - GATUS_CONFIG_PATH=/config/config.yaml
+      - PUSHOVER_APP_TOKEN=${PUSHOVER_APP_TOKEN}
+      - PUSHOVER_USER_KEY=${PUSHOVER_USER_KEY}
+    volumes:
+      - ./gatus-config-rpi5-containers-04.yaml:/config/config.yaml:ro
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+    restart: unless-stopped
