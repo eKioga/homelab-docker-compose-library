@@ -1,0 +1,25 @@
+# Technitium DNS node dns-03 on RPi5-Containers-04, the jumpbox at the second site. Written by home-lab-admin, 2026-11-23.
+# Same image and layout as dns-01 and dns-02 (stacks technitium-dns-01/-02). It joins the existing cluster as a
+# Secondary over the site-to-site link (not Tailscale) once the Pi has its fixed address at the second site; joining
+# copies the cluster's zones, block lists, settings, users and permissions onto it.
+#
+# Web console: http://<Pi address>:5380 (HTTPS 53443 after the join). Data: /srv/docker/technitium on the Pi.
+# First-start admin password: set TECHNITIUM_ADMIN_PASSWORD in the stack's Environment in Komodo (never in this file).
+# It only applies to the very first start; after the join the cluster's own users apply.
+
+services:
+  dns-server:
+    container_name: dns-server
+    hostname: dns-server
+    image: technitium/dns-server:latest
+    network_mode: "host"          # DNS on 53, web console 5380/53443, as on dns-01 and dns-02
+    environment:
+      - DNS_SERVER_DOMAIN=dns-03.technitium.arpa   # the node name it joins the cluster under
+      - DNS_SERVER_ADMIN_PASSWORD=${TECHNITIUM_ADMIN_PASSWORD}
+    volumes:
+      - /srv/docker/technitium/:/etc/dns
+    deploy:
+      resources:
+        limits:
+          memory: 768m            # of the Pi's 8 GB; block lists need some room
+    restart: unless-stopped
