@@ -1,16 +1,9 @@
 # Gatus checks for RPi5-Containers-04 (the jumpbox at the second site). Written by home-lab-admin, 2026-11-23.
-# The Pushover values come from the container's environment; this file holds no secrets.
+# This file holds no secrets.
 
-alerting:
-  pushover:
-    application-token: "${PUSHOVER_APP_TOKEN}"
-    user-key: "${PUSHOVER_USER_KEY}"
-    title: "Gatus (second site)"
-    default-alert:
-      enabled: true
-      failure-threshold: 3        # three failed checks in a row (about 3 minutes) before an alert
-      success-threshold: 2
-      send-on-resolved: true
+# Alerts are off until the Pi is settled at the second site (Eric, 2026-11-23). To turn them on, add an
+# alerting.pushover block and an `alerts: [{type: pushover}]` entry per endpoint, with the token and user key
+# from the container's environment.
 
 endpoints:
   - name: Jellyfin
@@ -20,8 +13,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY] == Healthy"
-    alerts:
-      - type: pushover
 
   - name: Home router
     group: Home over the site link
@@ -29,8 +20,6 @@ endpoints:
     interval: 1m
     conditions:
       - "[CONNECTED] == true"
-    alerts:
-      - type: pushover
 
   - name: dns-01 answers
     group: Home over the site link
@@ -41,8 +30,6 @@ endpoints:
       query-type: "A"
     conditions:
       - "[DNS_RCODE] == NOERROR"
-    alerts:
-      - type: pushover
 
   - name: Second site router
     group: Second site
@@ -50,8 +37,6 @@ endpoints:
     interval: 1m
     conditions:
       - "[CONNECTED] == true"
-    alerts:
-      - type: pushover
 
   - name: dns-03 answers
     group: Second site
@@ -62,8 +47,6 @@ endpoints:
       query-type: "A"
     conditions:
       - "[DNS_RCODE] == NOERROR"
-    alerts:
-      - type: pushover
 
   - name: dns-03 blocks ads
     group: Second site
@@ -74,8 +57,6 @@ endpoints:
       query-type: "A"
     conditions:
       - "[DNS_RCODE] == NXDOMAIN"
-    alerts:
-      - type: pushover
 
   - name: Internal names
     group: Second site
@@ -86,5 +67,3 @@ endpoints:
       query-type: "A"
     conditions:
       - "[BODY] == 10.0.0.15"
-    alerts:
-      - type: pushover
