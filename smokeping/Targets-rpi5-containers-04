@@ -1,0 +1,54 @@
+*** Targets ***
+
+probe = FPing
+
+menu = Top
+title = Latency from the second site
+remark = Measured by the jumpbox at the second site (RPi5-Containers-04).
+
++ Local
+menu = Second site
+title = Second site's own network
+
+++ Router
+menu = Router
+title = Second site router (10.10.0.1)
+host = 10.10.0.1
+
++ Home
+menu = Home (site link)
+title = Home, over the site-to-site link
+
+++ Router
+menu = Home router
+title = Home router (10.0.0.1)
+host = 10.0.0.1
+
+++ BazziteTV
+menu = BazziteTV
+title = BazziteTV, the Jellyfin host (10.0.0.20)
+host = 10.0.0.20
+
+++ NASLab
+menu = NAS-LAB
+title = NAS-LAB (10.0.0.7)
+host = 10.0.0.7
+
++ Internet
+menu = Internet
+title = Public internet
+
+++ Cloudflare
+menu = Cloudflare
+title = Cloudflare DNS (1.1.1.1)
+host = 1.1.1.1
+
+++ Google
+menu = Google
+title = Google DNS (8.8.8.8)
+host = 8.8.8.8
+
+++ Quad9
+menu = Quad9
+title = Quad9 DNS (9.9.9.9)
+host = 9.9.9.9

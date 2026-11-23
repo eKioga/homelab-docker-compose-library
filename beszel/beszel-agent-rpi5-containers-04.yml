@@ -1,0 +1,19 @@
+# Beszel agent on RPi5-Containers-04 (the jumpbox at the second site): sends this Pi's CPU, memory, disk and container readings
+# to the Beszel hub, which connects to it on port 45876.
+# KEY is the Beszel hub's PUBLIC key (the agent only accepts that hub). It is not a secret and
+# is safe to publish.
+# Copied from beszel-agent-rpi5-containers-03.yml (2026-11-23). The hub (RPi5-Containers-02) reaches it over the site-to-site link.
+
+services:
+  beszel-agent:
+    image: "henrygd/beszel-agent"
+    container_name: "beszel-agent"
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # monitor other disks / partitions by mounting a folder in /extra-filesystems
+      # - /mnt/disk/.beszel:/extra-filesystems/sda1:ro
+    environment:
+      LISTEN: 45876
+      KEY: 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIETnwhaik1z9+nTSfw3MBhDM5mF0EIsjJakd1xaTMqLV'

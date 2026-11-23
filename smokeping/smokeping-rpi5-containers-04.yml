@@ -1,0 +1,28 @@
+# Smokeping on RPi5-Containers-04, the jumpbox at the second site. Written by home-lab-admin, 2026-11-23.
+# Graphs latency and loss from the second site to its own router, to home over the site-to-site link
+# (router, Jellyfin's host, NAS-LAB) and to the internet, so an outage can be dated afterwards.
+# Same image and layout as the home Smokeping on RPi5-Containers-02 (stack smokeping).
+#
+# Open it at http://<Pi address>:8069/smokeping/
+# Targets: /srv/docker/smokeping/config/Targets on the Pi, kept by home-lab-admin (copy beside this file).
+# No variables, no secrets.
+
+services:
+  smokeping:
+    image: lscr.io/linuxserver/smokeping:latest
+    container_name: smokeping
+    hostname: smokeping-site2
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+    volumes:
+      - /srv/docker/smokeping/config:/config
+      - /srv/docker/smokeping/data:/data
+    ports:
+      - 8069:80
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    restart: unless-stopped
