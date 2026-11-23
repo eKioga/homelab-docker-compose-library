@@ -1,0 +1,40 @@
+# Webtop "jumpbox" on RPi5-Containers-04, the Pi at the second site. Written by home-lab-admin, 2026-11-23.
+# A plain desktop for testing home services from the second site (Jellyfin and the like). Not a Deskpost office:
+# it deliberately does NOT use the shared Webtop kit or any NAS folder, so it starts whenever the Pi is up,
+# even when the site-to-site link or the NAS is down (Eric, 2026-11-23: option A).
+#
+# Open it at https://<Pi address>:3001 (Webtop's own self-signed HTTPS) or http://<Pi address>:3000.
+# At home during setup the Pi is 10.0.0.198; at the second site it gets a fixed 10.10.0.x address.
+#
+# Folders on the Pi (made by home-lab-admin):
+#   /srv/webtop/jumpbox/config               the desktop's home folder (/config), owned by UID 1000
+#   /srv/webtop/jumpbox/custom-cont-init.d   start-up scripts for admin tools, empty for now; root-owned, read-only
+#                                            in the container, kept by home-lab-admin
+#
+# Password: in Komodo, stack Environment, set WEBTOP_USER and WEBTOP_PASSWORD. The values live in Komodo only.
+
+services:
+  webtop-jumpbox:
+    image: lscr.io/linuxserver/webtop:ubuntu-xfce
+    container_name: webtop-jumpbox
+    security_opt:
+      - seccomp:unconfined        # browsers' sandboxes need user namespaces, as on the other Webtops
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Los_Angeles
+      - TITLE=Jumpbox
+      - CUSTOM_USER=${WEBTOP_USER:-abc}
+      - PASSWORD=${WEBTOP_PASSWORD:-}
+    volumes:
+      - /srv/webtop/jumpbox/config:/config
+      - /srv/webtop/jumpbox/custom-cont-init.d:/custom-cont-init.d:ro
+    ports:
+      - 3000:3000
+      - 3001:3001
+    shm_size: "1gb"
+    deploy:
+      resources:
+        limits:
+          memory: 6g              # of the Pi's 8 GB, leaving room for the system and Komodo's agent
+    restart: unless-stopped
