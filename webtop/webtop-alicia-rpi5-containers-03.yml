@@ -10,6 +10,8 @@
 #   /mnt/nas-lab/backups/dev/webtop/kit/staging             kit staging (the Deskpost arm64 build), read-only
 #   /mnt/nas-lab/backups/dev/webtop/kit/control             kit control (the Deskpost hold file), read-only
 #   /mnt/nas-lab/backups/dev/webtop/exchange/alicia         her file tray (B:\dev\webtop\exchange\alicia)
+#   /mnt/nas-lab/backups/game_servers/valheim/config        the Valheim server's mod settings, read-write (2026-11-22)
+#   /srv/webtop-secrets/alicia                              the Infisical key file for her seats, read-only (2026-11-22)
 # /mnt/nas-lab/backups is the NAS-LAB Backups share over NFS, mounted on the Pi by home-lab-admin.
 #
 # Password: in Komodo, stack Environment, set WEBTOP_USER=alicia and WEBTOP_PASSWORD=<the password>.
@@ -60,6 +62,22 @@ services:
       - type: bind
         source: /mnt/nas-lab/backups/dev/webtop/exchange/alicia
         target: /mnt/exchange
+        bind:
+          create_host_path: false
+      # The Valheim server's mod settings (BepInEx config and dated copies), for her valheim-desk seat. The server on
+      # BazziteTV mounts the same NAS folder over its BepInEx/config. Only this folder: no saves, no backups.
+      - type: bind
+        source: /mnt/nas-lab/backups/game_servers/valheim/config
+        target: /mnt/valheim/config
+        bind:
+          create_host_path: false
+      # The Infisical key file her seats read secrets with (deskpost_secrets.py looks for
+      # /run/webtop-secrets/infisical-identity). Read-only, and outside /config, so nothing on the desktop can change
+      # it. Written on the Pi by Eric (root:1000, 0440); Viewer on project valheim-desk only.
+      - type: bind
+        source: /srv/webtop-secrets/alicia
+        target: /run/webtop-secrets
+        read_only: true
         bind:
           create_host_path: false
     ports:
