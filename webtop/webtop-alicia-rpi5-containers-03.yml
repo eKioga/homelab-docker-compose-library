@@ -7,7 +7,6 @@
 # Folders on the Pi:
 #   /srv/webtop/alicia/config                              her desktop and home folder (/config), on the Pi
 #   /mnt/nas-lab/backups/dev/webtop/kit/custom-cont-init.d  the shared start-up kit (x86_64 and arm64), read-only
-#   /mnt/nas-lab/backups/dev/webtop/kit/staging             kit staging (the Deskpost arm64 build), read-only
 #   /mnt/nas-lab/backups/dev/webtop/kit/control             kit control (the Deskpost hold file), read-only
 #   /mnt/nas-lab/backups/dev/webtop/exchange/alicia         her file tray (B:\dev\webtop\exchange\alicia)
 #   /mnt/nas-lab/backups/game_servers/valheim/config        the Valheim server's mod settings, read-write (2026-11-22)
@@ -42,14 +41,6 @@ services:
         read_only: true
         bind:
           create_host_path: false   # fail the deploy if the NAS mount is missing, never start with an empty kit
-      # The kit's staging folder, read-only: what the kit installs from when no public release fits, such as
-      # the Deskpost linux-arm64 build (2026-11-22). Read-only for the same reason as the kit.
-      - type: bind
-        source: /mnt/nas-lab/backups/dev/webtop/kit/staging
-        target: /webtop-kit/staging
-        read_only: true
-        bind:
-          create_host_path: false
       # The kit's control folder, read-only: the Deskpost hold file (kit/control/README.md). Read-only so no desktop
       # can lift its own hold.
       - type: bind
