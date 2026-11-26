@@ -74,6 +74,9 @@ services:
     ports:
       - 3060:3000
       - 3061:3001
+      # Orca's runtime, so PC-Eric's Orca can pair with her desktop Orca on the LAN (Remote Orca Servers;
+      # added 2026-11-26). The desktop app always listens on 6768. LAN only: never in a proxy or a router rule.
+      - 6768:6768
     shm_size: "1gb"
     deploy:
       resources:
